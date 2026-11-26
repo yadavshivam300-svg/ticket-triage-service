@@ -1,5 +1,6 @@
 package com.triage.service.domain;
 
+import com.triage.service.exception.InvalidStatusTransitionException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -94,8 +95,11 @@ public class Ticket {
         return status;
     }
 
-    public void setStatus(TicketStatus status) {
-        this.status = status;
+    public void transitionTo(TicketStatus nextStatus) {
+        if (nextStatus == null || !status.canTransitionTo(nextStatus)) {
+            throw new InvalidStatusTransitionException(status, nextStatus);
+        }
+        status = nextStatus;
     }
 
     public TicketPriority getPriority() {

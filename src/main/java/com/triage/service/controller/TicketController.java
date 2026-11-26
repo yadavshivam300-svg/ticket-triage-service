@@ -3,6 +3,7 @@ package com.triage.service.controller;
 import com.triage.service.domain.TicketStatus;
 import com.triage.service.dto.CreateTicketRequest;
 import com.triage.service.dto.TicketResponse;
+import com.triage.service.dto.UpdateTicketStatusRequest;
 import com.triage.service.service.TicketService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +49,13 @@ public class TicketController {
     @GetMapping("/{id}")
     public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
         return ResponseEntity.ok(ticketService.getTicketById(id));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TicketResponse> updateTicketStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateTicketStatusRequest request) {
+        return ResponseEntity.ok(ticketService.updateTicketStatus(id, request.status()));
     }
 
     @DeleteMapping("/{id}")

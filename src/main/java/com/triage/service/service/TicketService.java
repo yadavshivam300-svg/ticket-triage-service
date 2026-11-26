@@ -2,6 +2,8 @@ package com.triage.service.service;
 
 import com.triage.service.domain.Ticket;
 import com.triage.service.domain.TicketStatus;
+import com.triage.service.domain.strategy.TriageResult;
+import com.triage.service.domain.strategy.TriageStrategy;
 import com.triage.service.dto.CreateTicketRequest;
 import com.triage.service.dto.TicketResponse;
 import com.triage.service.exception.TicketNotFoundException;
@@ -15,9 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
+    private final TriageStrategy triageStrategy;
 
-    public TicketService(TicketRepository ticketRepository) {
+    public TicketService(TicketRepository ticketRepository, TriageStrategy triageStrategy) {
         this.ticketRepository = ticketRepository;
+        this.triageStrategy = triageStrategy;
     }
 
     public TicketResponse createTicket(CreateTicketRequest request) {
@@ -25,6 +29,9 @@ public class TicketService {
         ticket.setTitle(request.title());
         ticket.setDescription(request.description());
         ticket.setReporterEmail(request.reporterEmail());
+        TriageResult triageResult = triageStrategy.triage(request.title(), request.description());
+        ticket.setPriority(triageResult.priority());
+        ticket.setCategory(triageResult.category());
         return toResponse(ticketRepository.save(ticket));
     }
 
@@ -43,6 +50,13 @@ public class TicketService {
 
     public void deleteTicket(Long id) {
         ticketRepository.delete(findTicketById(id));
+    }
+
+    @Transactional
+    public TicketResponse updateTicketStatus(Long id, TicketStatus newStatus) {
+        Ticket ticket = findTicketById(id);
+        ticket.transitionTo(newStatus);
+        return toResponse(ticket);
     }
 
     private Ticket findTicketById(Long id) {
