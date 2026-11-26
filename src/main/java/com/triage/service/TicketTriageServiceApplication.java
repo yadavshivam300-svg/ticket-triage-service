@@ -1,4 +1,4 @@
-package com.triage.ticket;
+package com.triage.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
